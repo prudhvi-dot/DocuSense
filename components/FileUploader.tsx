@@ -2,13 +2,7 @@
 
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import {
-  CheckCircleIcon,
-  CircleArrowDown,
-  HammerIcon,
-  RocketIcon,
-  SaveIcon,
-} from "lucide-react";
+import { CircleArrowDown, RocketIcon } from "lucide-react";
 
 const FileUploader = () => {
   const onDrop = useCallback((acceptedFiles: File[]) => {}, []);
@@ -16,6 +10,7 @@ const FileUploader = () => {
     useDropzone({
       onDrop,
     });
+
   return (
     <div className="flex flex-col gap-4 items-center max-w-7xl mx-auto">
       <div
@@ -34,7 +29,10 @@ const FileUploader = () => {
           ) : (
             <>
               <CircleArrowDown className="h-20 w-20 animate-bounce" />
-              <p>Drag 'n' drop some files here, or click to select files</p>
+              <p>
+                Drag &apos;n&apos; drop some files here, or click to select
+                files
+              </p>
             </>
           )}
         </div>
