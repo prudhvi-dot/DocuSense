@@ -3,7 +3,6 @@
 
 import { currentUser } from "@clerk/nextjs/server";
 import { prisma } from "./DB/prisma";
-import { redirect } from "next/navigation";
 
 
 interface file {
