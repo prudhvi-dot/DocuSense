@@ -1,8 +1,11 @@
 "use server"
 
-
+import { generateEmbeddingsPineconeVectorStore } from "./lib/langchain";
+import { auth } from "@clerk/nextjs/server"; 
+import { revalidatePath } from "next/cache";
 import { currentUser } from "@clerk/nextjs/server";
 import { prisma } from "./DB/prisma";
+import { redirect } from "next/navigation";
 
 
 interface file {
@@ -14,9 +17,9 @@ interface file {
 
 export async function handleFileUpload(files: File[]) {
   const user = await currentUser();
-  const filesTOBeAdded: file[] = [];
-  for (const file of files) {
     const formData = new FormData();
+
+    const file = files[0];
 
     formData.append("file", file);
     formData.append("upload_preset", "DocuSense");
@@ -36,21 +39,21 @@ export async function handleFileUpload(files: File[]) {
 
     const uploadedFile = await response.json();
 
-    const fileDate = {
+    const fileData = {
       title: uploadedFile.original_filename,
       fileUrl: uploadedFile.secure_url,
       publicId: uploadedFile.public_id,
       userId: user?.id,
     };
 
-    filesTOBeAdded.push(fileDate as file);
-  }
 
-  await prisma.document.createMany({
-    data: filesTOBeAdded,
-  });
+  const doc = await prisma.document.create({
+    data: fileData as file
+  })
 
-  // redirect('/dashboard')
+  await generateEmbeddings(doc.id);
+
+  redirect(`/dashboard/files/${doc.id}`)
 }
 
 export async function saveUser() {
@@ -68,3 +71,11 @@ export async function saveUser() {
         }
     })
 }
+
+export async function generateEmbeddings(docId:string) {
+  
+  await generateEmbeddingsPineconeVectorStore(docId);
+  revalidatePath("/dashboard");
+  return {completed:true};
+}
+
