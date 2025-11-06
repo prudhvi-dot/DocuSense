@@ -11,7 +11,7 @@
   "dependencies": {
     "@clerk/nextjs": "^6.33.2",
     "@clerk/themes": "^2.4.24",
-    "@huggingface/inference": "^4.11.1",
+    "@huggingface/inference": "^4.13.1",
     "@langchain/community": "^0.3.57",
     "@langchain/core": "^0.3.78",
     "@langchain/google-genai": "^0.2.18",

@@ -1,9 +1,7 @@
 import { NamespaceSummary } from './../node_modules/@pinecone-database/pinecone/dist/pinecone-generated-ts-fetch/db_data/models/NamespaceSummary.d';
 import { Pinecone } from '@pinecone-database/pinecone';
-import {ChatOpenAI} from "@langchain/openai";
 import {PDFLoader} from "@langchain/community/document_loaders/fs/pdf";
 import {RecursiveCharacterTextSplitter} from "langchain/text_splitter";
-import { OpenAIEmbeddings } from "@langchain/openai";
 import {createStuffDocumentsChain} from "langchain/chains/combine_documents";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import {createRetrievalChain} from "langchain/chains/retrieval";
@@ -16,11 +14,45 @@ import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/DB/prisma';
 import { ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { HuggingFaceInferenceEmbeddings } from "@langchain/community/embeddings/hf";
+import { createHistoryAwareRetriever } from "langchain/chains/history_aware_retriever";
+import { HuggingFaceInference } from "@langchain/community/llms/hf";
 
-// const model = new ChatGoogleGenerativeAI({
-//   model: "gemini-1.5-flash", // or gemini-1.5-pro
-//   apiKey: process.env.GOOGLE_API_KEY,
-// });
+
+const model = new HuggingFaceInference({
+  apiKey: process.env.HUGGINGFACE_API_KEY,
+  model: "google/flan-t5-large", // ✅ fully supported
+  temperature: 0.7,
+});
+
+
+async function fetchMessagesFromDB(docId:string) {
+  const chat = await prisma.chat.findFirst({
+    where: {
+      documentId: docId
+    }
+  })
+
+  const messages = await prisma.message.findMany({
+    where: {
+      chatId: chat?.id
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
+  })
+
+  const chatHistory = messages.map((msg) => {
+    if(msg.role === "human") {
+      return new HumanMessage(msg.message);
+    } else {
+      return new AIMessage(msg.message);
+    }
+  })
+
+  console.log(chatHistory.map((m) => m.text.toString()));
+
+  return chatHistory
+}
 
 export const indexName = "docusense";
 
@@ -89,3 +121,65 @@ export async function generateEmbeddingsPineconeVectorStore(docId: string) {
     namespace: docId,
   });
 }
+
+
+async function generateLangchainCompletion (docId:string, question:string) {
+  let pinecneVectorStore;
+
+  pinecneVectorStore = await generateEmbeddingsPineconeVectorStore(docId);
+
+  console.log("---- Creating a retriever ----")
+
+  if(!pinecneVectorStore) {
+    throw new Error("Pinecone Vector Store not found");
+  }
+
+  const retriever = pinecneVectorStore.asRetriever();
+
+  const chatHistory = await fetchMessagesFromDB(docId);
+
+  const historyAwarePrompt = ChatPromptTemplate.fromMessages([
+    ...chatHistory,
+    ["user", "{input}"],
+    [
+      "user",
+      "Given the above conversation, generate a search query to look up in order to get information relevant to the conversation."
+    ]
+  ]);
+
+  const historyAwareRetrieverChain = await createHistoryAwareRetriever({
+    llm: model,
+    retriever,
+    rephrasePrompt: historyAwarePrompt,
+  });
+
+  const historyAwareRetrivalPrompt = ChatPromptTemplate.fromMessages([
+    [
+    "system",
+    "Answer the user's question based on the below context:\n\n{context}"
+    ],
+    ...chatHistory,
+    ["user", "{input}"]
+  ]);
+
+  const historyAwareCombineDocsChain = await createStuffDocumentsChain({
+    llm: model,
+    prompt: historyAwareRetrivalPrompt,
+  });
+
+  const conversationalRetrievalChain = await createRetrievalChain({
+    retriever: historyAwareRetrieverChain,
+    combineDocsChain: historyAwareCombineDocsChain,
+  });
+
+  const reply = await conversationalRetrievalChain.invoke({
+    chat_history: chatHistory,
+    input: question,
+  });
+
+  console.log(reply.answer);
+
+  return reply.answer
+}
+
+export {model, generateLangchainCompletion}

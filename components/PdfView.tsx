@@ -35,9 +35,9 @@ const PdfView = ({ url }: { url: string }) => {
   };
   return (
     <div className="flex flex-col justify-center items-center">
-      <div>
-        <div>
-          <Button
+      <div className="z-50 p-2 bg-gray-100 justify-center sticky top-0 ">
+        <div className="flex gap-2">
+         <Button
             variant="outline"
             disabled={pageNumber === 1}
             onClick={() => {
@@ -55,15 +55,17 @@ const PdfView = ({ url }: { url: string }) => {
             variant="outline"
             disabled={pageNumber === numPages}
             onClick={() => {
-              if (pageNumber > 1) {
+              if (pageNumber < (numPages ?? 0)) {
                 setPageNumber(pageNumber + 1);
               }
             }}
           >
             Next
-          </Button>
+          </Button> 
         </div>
-      </div>
+         
+
+        </div>
       {!file ? (
         <div>
           <Loader2Icon className="animate-spin mt-20" />
@@ -74,9 +76,11 @@ const PdfView = ({ url }: { url: string }) => {
           file={file}
           rotate={rotation}
           onLoadSuccess={onDocumentLoadSuccess}
-          className="m-4 overflow-scroll"
+          className="m-4"
         >
-          <Page className="shadow-lg" scale={scale} pageNumber={pageNumber} />
+          <Page className="shadow-lg" scale={scale} pageNumber={pageNumber} 
+          // width={Math.min(window.innerWidth * 0.4, 600)}
+          />
         </Document>
       )}
     </div>

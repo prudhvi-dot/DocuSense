@@ -1,6 +1,6 @@
 "use server"
 
-import { generateEmbeddingsPineconeVectorStore } from "./lib/langchain";
+import { generateEmbeddingsPineconeVectorStore, generateLangchainCompletion } from "./lib/langchain";
 import { auth } from "@clerk/nextjs/server"; 
 import { revalidatePath } from "next/cache";
 import { currentUser } from "@clerk/nextjs/server";
@@ -77,5 +77,65 @@ export async function generateEmbeddings(docId:string) {
   await generateEmbeddingsPineconeVectorStore(docId);
   revalidatePath("/dashboard");
   return {completed:true};
+}
+
+const Free_Limit = 3;
+const Pro_Limit = 100;
+
+export async function askQuestion(id:string, question:string) {
+  const {userId} = await auth();
+  if(!userId) {
+    return {success:false, message:"User not authenticated"};
+  }
+  let chat = await prisma.chat.findUnique({
+    where: {
+      documentId: id
+    }
+  });
+
+  if(!chat) {
+    chat = await prisma.chat.create({
+      data: {
+        documentId: id,
+      }
+    })
+  }
+
+  await prisma.message.create({
+    data: {
+      message: question,
+      role: "human",
+      chatId: chat.id,
+    }
+  })
+
+  const reply = await generateLangchainCompletion(id, question);
+
+  const aiMessage = await prisma.message.create({
+    data: {
+      message: reply,
+      role: "ai",
+      chatId: chat.id,
+    }
+  })
+  return {success:true, message: aiMessage.message};
+}
+
+export async function getChatMessages(docId:string) {
+  const chat = await prisma.chat.findFirst({
+    where: {
+      documentId: docId
+    }
+  })
+
+  const messages = await prisma.message.findMany({
+    where: {
+      chatId: chat?.id
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
+  })
+  return {success: true, messages};
 }
 
