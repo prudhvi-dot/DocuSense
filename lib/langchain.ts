@@ -12,16 +12,16 @@ import { PineconeConflictError } from '@pinecone-database/pinecone/dist/errors';
 import {Index, RecordMetadata} from "@pinecone-database/pinecone";
 import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/DB/prisma';
-import { ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
+// import { ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { HuggingFaceInferenceEmbeddings } from "@langchain/community/embeddings/hf";
 import { createHistoryAwareRetriever } from "langchain/chains/history_aware_retriever";
 import { HuggingFaceInference } from "@langchain/community/llms/hf";
+import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 
-
-const model = new HuggingFaceInference({
-  apiKey: process.env.HUGGINGFACE_API_KEY,
-  model: "google/flan-t5-large", // ✅ fully supported
-  temperature: 0.7,
+const model = new ChatGoogleGenerativeAI({
+  apiKey: process.env.GOOGLE_API_KEY, 
+  model: "gemini-2.5-flash", 
+  temperature: 0.7,
 });
 
 
@@ -80,7 +80,10 @@ export async function generateDocs(docId:string) {
     const loader = new PDFLoader(data);
     const docs = await loader.load();
 
-    const splitter = new RecursiveCharacterTextSplitter();
+    const splitter = new RecursiveCharacterTextSplitter({
+    chunkSize: 800, // Recommended size: 500-1000 characters
+    chunkOverlap: 100, // Recommended overlap: 50-200 characters
+});
     const splitDocs = await splitter.splitDocuments(docs);
     console.log(splitDocs.length);
 
@@ -138,13 +141,16 @@ async function generateLangchainCompletion (docId:string, question:string) {
 
   const chatHistory = await fetchMessagesFromDB(docId);
 
+  const trimmedHistory = chatHistory.slice(-5);
+
   const historyAwarePrompt = ChatPromptTemplate.fromMessages([
-    ...chatHistory,
+    ...trimmedHistory,
     ["user", "{input}"],
-    [
-      "user",
-      "Given the above conversation, generate a search query to look up in order to get information relevant to the conversation."
-    ]
+    // In your generateLangchainCompletion function:
+  [
+      "user",
+      "Based ONLY on the user's latest message, generate a single, highly specific search query to retrieve the exact information needed to answer the question. Only include details necessary for the search."
+  ]
   ]);
 
   const historyAwareRetrieverChain = await createHistoryAwareRetriever({
@@ -153,14 +159,14 @@ async function generateLangchainCompletion (docId:string, question:string) {
     rephrasePrompt: historyAwarePrompt,
   });
 
-  const historyAwareRetrivalPrompt = ChatPromptTemplate.fromMessages([
-    [
-    "system",
-    "Answer the user's question based on the below context:\n\n{context}"
-    ],
-    ...chatHistory,
-    ["user", "{input}"]
-  ]);
+  // In your generateLangchainCompletion function:
+  const historyAwareRetrivalPrompt = ChatPromptTemplate.fromMessages([
+    [
+    "system",
+    "You are an assistant answering questions about a document. Answer ONLY the final question from the user, using ONLY the context provided below. Do not repeat previous answers or include information not explicitly asked for.\n\nContext:\n{context}"
+    ],
+    ["user", "{input}"] // This is the final question the model must focus on
+  ]);
 
   const historyAwareCombineDocsChain = await createStuffDocumentsChain({
     llm: model,
@@ -177,7 +183,6 @@ async function generateLangchainCompletion (docId:string, question:string) {
     input: question,
   });
 
-  console.log(reply.answer);
 
   return reply.answer
 }

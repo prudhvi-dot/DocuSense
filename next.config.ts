@@ -1,14 +1,19 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-   images: {
+  images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'i.imgur.com', // ✅ allow all HTTPS hosts
+        protocol: "https",
+        hostname: "img.clerk.com", // ✅ allow Clerk images
+      },
+      // Optional: allow other hosts
+      {
+        protocol: "https",
+        hostname: "i.imgur.com",
       },
     ],
-  }
+  },
 };
 
 export default nextConfig;

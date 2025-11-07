@@ -122,20 +122,16 @@ export async function askQuestion(id:string, question:string) {
 }
 
 export async function getChatMessages(docId:string) {
-  const chat = await prisma.chat.findFirst({
+  const Messages = await prisma.chat.findUnique({
     where: {
-      documentId: docId
-    }
-  })
-
-  const messages = await prisma.message.findMany({
-    where: {
-      chatId: chat?.id
+      documentId: docId,
     },
-    orderBy: {
-      createdAt: 'desc'
-    }
-  })
-  return {success: true, messages};
+    include: {
+      messages: {
+        orderBy: { createdAt: 'asc' },
+      },
+    },
+  });
+  return {success: true, messages:Messages?.messages || []};
 }
 

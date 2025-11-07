@@ -1,10 +1,12 @@
 "use client";
-import { FormEvent, useEffect, useState, useTransition } from "react";
+import { FormEvent, useEffect, useRef, useState, useTransition } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Loader2Icon } from "lucide-react";
 import { askQuestion, getChatMessages } from "@/actions";
-import { get } from "http";
+import { BotIcon } from "lucide-react";
+import { useUser } from "@clerk/nextjs";
+import Image from "next/image";
 
 export type Message = {
   id?: string;
@@ -16,6 +18,14 @@ const Chat = ({ id }: { id: string }) => {
   const [isPending, startTransition] = useTransition();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState<string>("");
+
+  const { user } = useUser();
+
+  const divRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    divRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   useEffect(() => {
     async function loadMessages() {
@@ -59,38 +69,58 @@ const Chat = ({ id }: { id: string }) => {
     });
   }
   return (
-    <div className="flex flex-col h-full overflow-scroll">
+    <div className="flex flex-col h-full">
       <div className="flex-1 w-full overflow-y-auto p-4 space-y-3">
-  {messages.length === 0 ? (
-    <p className="text-center text-gray-400">No messages yet. Start a conversation!</p>
-  ) : (
-    messages.map((msg, idx) => (
-      <div
-        key={idx}
-        className={`flex ${
-          msg.role === "human" ? "justify-end" : "justify-start"
-        }`}
-      >
-        <div
-          className={`max-w-[75%] p-3 rounded-2xl text-sm shadow-md ${
-            msg.role === "human"
-              ? "bg-blue-600 text-white rounded-br-none"
-              : "bg-neutral-700 text-gray-100 rounded-bl-none"
-          }`}
-        >
-          <p>{msg.message}</p>
-          <span className="block text-[10px] mt-1 opacity-60">
-            {new Date(msg.createdAt).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </span>
-        </div>
+        {messages.length === 0 ? (
+          <p className="text-center text-gray-400">
+            No messages yet. Start a conversation!
+          </p>
+        ) : (
+          messages.map((msg, idx) => (
+            <div
+              key={idx}
+              className={`flex mb-3.5${
+                msg.role === "human"
+                  ? "justify-start flex-row-reverse"
+                  : "justify-start"
+              }`}
+            >
+              <div className="flex items-end">
+                {msg.role === "human" ? (
+                  <Image
+                    src={user?.imageUrl || ""}
+                    alt="profile picture"
+                    width={33}
+                    height={33}
+                    className="rounded-full ml-0.5"
+                  />
+                ) : (
+                  // <BotIcon/>
+                  <div className="flex items-end">
+                    <BotIcon className="w-7 h-7 mr-0.5" />
+                  </div>
+                )}
+              </div>
+              <div
+                className={`relative max-w-[75%] p-3 text-sm shadow-md rounded-2xl break-words ${
+                  msg.role === "human"
+                    ? "bg-[#0f0f0f] text-white rounded-br-none"
+                    : "bg-white text-black rounded-bl-none"
+                }`}
+              >
+                <p>{msg.message}</p>
+                <span className="block text-[10px] mt-1 opacity-60 text-right">
+                  {new Date(msg.createdAt).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+              </div>
+            </div>
+          ))
+        )}
+        <div ref={divRef}></div>
       </div>
-    ))
-  )}
-</div>
-
 
       <form
         onSubmit={handleSubmit}
