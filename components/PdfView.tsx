@@ -15,8 +15,8 @@ const PdfView = ({ url }: { url: string }) => {
   const [numPages, setNumPages] = useState<number>();
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [file, setFile] = useState<Blob | null>(null);
-  const [rotation, setRotation] = useState<number>();
   const [scale, setScale] = useState<number>(1);
+  const [containerWidth, setContainerWidth] = useState<number>(0);
 
   useEffect(() => {
     const fetchFile = async () => {
@@ -29,6 +29,23 @@ const PdfView = ({ url }: { url: string }) => {
 
     fetchFile();
   }, [url]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const availableWidth = window.innerWidth - 20;
+
+      const MAX_DESKTOP_WIDTH = 700;
+
+      const newWidth = Math.min(availableWidth, MAX_DESKTOP_WIDTH);
+      
+      setContainerWidth(newWidth);
+    };
+
+    handleResize(); // Set initial width
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }): void => {
     setNumPages(numPages);
@@ -74,12 +91,12 @@ const PdfView = ({ url }: { url: string }) => {
         <Document
           loading={null}
           file={file}
-          rotate={rotation}
           onLoadSuccess={onDocumentLoadSuccess}
-          className="m-4"
+          className="flex justify-center"
         >
           <Page className="shadow-lg" scale={scale} pageNumber={pageNumber} 
           // width={Math.min(window.innerWidth * 0.4, 600)}
+          width={containerWidth}
           />
         </Document>
       )}

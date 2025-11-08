@@ -49,7 +49,7 @@ const Chat = ({ id }: { id: string }) => {
       },
       {
         role: "ai",
-        message: "Thinking...",
+        message: "",
         createdAt: new Date(),
       },
     ]);
@@ -108,13 +108,30 @@ const Chat = ({ id }: { id: string }) => {
                     : "bg-white text-black rounded-bl-none"
                 }`}
               >
-                <p>{msg.message}</p>
-                <span className="block text-[10px] mt-1 opacity-60 text-right">
-                  {new Date(msg.createdAt).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </span>
+                {msg.role === "ai" &&
+                idx === messages.length - 1 &&
+                isPending ? (
+<div className="book">
+  <div className="book__pg-shadow"></div>
+  <div className="book__pg"></div>
+  <div className="book__pg book__pg--2"></div>
+  <div className="book__pg book__pg--3"></div>
+  <div className="book__pg book__pg--4"></div>
+  <div className="book__pg book__pg--5"></div>
+</div>
+
+                ) : (
+                  <p>{msg.message || ""}</p>
+                )}
+
+                {msg.message && (
+                  <span className="block text-[10px] mt-1 opacity-60 text-right">
+                    {new Date(msg.createdAt).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                )}
               </div>
             </div>
           ))
