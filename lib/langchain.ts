@@ -1,5 +1,3 @@
-import { NamespaceSummary } from './../node_modules/@pinecone-database/pinecone/dist/pinecone-generated-ts-fetch/db_data/models/NamespaceSummary.d';
-import { Pinecone } from '@pinecone-database/pinecone';
 import {PDFLoader} from "@langchain/community/document_loaders/fs/pdf";
 import {RecursiveCharacterTextSplitter} from "langchain/text_splitter";
 import {createStuffDocumentsChain} from "langchain/chains/combine_documents";
@@ -8,14 +6,11 @@ import {createRetrievalChain} from "langchain/chains/retrieval";
 import { HumanMessage, AIMessage } from "@langchain/core/messages";
 import pineconeClient from './pinecone';
 import {PineconeStore} from "@langchain/pinecone";
-import { PineconeConflictError } from '@pinecone-database/pinecone/dist/errors';
 import {Index, RecordMetadata} from "@pinecone-database/pinecone";
 import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/DB/prisma';
-// import { ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { HuggingFaceInferenceEmbeddings } from "@langchain/community/embeddings/hf";
 import { createHistoryAwareRetriever } from "langchain/chains/history_aware_retriever";
-import { HuggingFaceInference } from "@langchain/community/llms/hf";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 
 const model = new ChatGoogleGenerativeAI({
@@ -49,7 +44,6 @@ async function fetchMessagesFromDB(docId:string) {
     }
   })
 
-  console.log(chatHistory.map((m) => m.text.toString()));
 
   return chatHistory
 }
@@ -85,7 +79,6 @@ export async function generateDocs(docId:string) {
     chunkOverlap: 100, // Recommended overlap: 50-200 characters
 });
     const splitDocs = await splitter.splitDocuments(docs);
-    console.log(splitDocs.length);
 
     return splitDocs;
 }
@@ -127,11 +120,8 @@ export async function generateEmbeddingsPineconeVectorStore(docId: string) {
 
 
 async function generateLangchainCompletion (docId:string, question:string) {
-  let pinecneVectorStore;
 
-  pinecneVectorStore = await generateEmbeddingsPineconeVectorStore(docId);
-
-  console.log("---- Creating a retriever ----")
+  const pinecneVectorStore = await generateEmbeddingsPineconeVectorStore(docId);
 
   if(!pinecneVectorStore) {
     throw new Error("Pinecone Vector Store not found");
@@ -146,7 +136,7 @@ async function generateLangchainCompletion (docId:string, question:string) {
   const historyAwarePrompt = ChatPromptTemplate.fromMessages([
     ...trimmedHistory,
     ["user", "{input}"],
-    // In your generateLangchainCompletion function:
+    
   [
       "user",
       "Based ONLY on the user's latest message, generate a single, highly specific search query to retrieve the exact information needed to answer the question. Only include details necessary for the search."
@@ -159,13 +149,12 @@ async function generateLangchainCompletion (docId:string, question:string) {
     rephrasePrompt: historyAwarePrompt,
   });
 
-  // In your generateLangchainCompletion function:
   const historyAwareRetrivalPrompt = ChatPromptTemplate.fromMessages([
     [
     "system",
     "You are an assistant answering questions about a document. Answer ONLY the final question from the user, using ONLY the context provided below. Do not repeat previous answers or include information not explicitly asked for.\n\nContext:\n{context}"
     ],
-    ["user", "{input}"] // This is the final question the model must focus on
+    ["user", "{input}"]
   ]);
 
   const historyAwareCombineDocsChain = await createStuffDocumentsChain({

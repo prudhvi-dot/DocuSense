@@ -6,7 +6,6 @@ import Chat from "@/components/Chat";
 
 const page = async ({ params }: { params: Promise<{ id: string }> }) => {
   await auth.protect();
-  const { userId } = await auth();
 
   const { id } = await params;
 
