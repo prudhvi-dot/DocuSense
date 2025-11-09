@@ -5,8 +5,7 @@ import "react-pdf/dist/Page/AnnotationLayer.js";
 import "react-pdf/dist/Page/TextLayer.js";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
-import { Loader2Icon, RotateCw, ZoomInIcon, ZoomOutIcon } from "lucide-react";
-import { Outline } from "react-pdf";
+import { Loader2Icon } from "lucide-react";
 const { Document, Page, pdfjs } = await import("react-pdf");
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;

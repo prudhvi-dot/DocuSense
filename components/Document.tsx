@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import React from "react";
-import { File } from "lucide-react";
+import { File, Delete, Download } from "lucide-react";
 
 interface Doc {
     // userId: string;
@@ -23,6 +23,11 @@ const Document = ({ doc }: { doc: Doc }) => {
     >
       <File className="h-12 w-12" />
       <p>{doc.title}</p>
+
+      <div className="flex gap-2.5 ml-auto px-1">
+        <Delete className="w-26"/>
+        <Download className="h-26"/>
+      </div>
     </div>
   );
 };
