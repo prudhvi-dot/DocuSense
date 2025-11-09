@@ -135,3 +135,11 @@ export async function getChatMessages(docId:string) {
   return {success: true, messages:Messages?.messages || []};
 }
 
+export async function deleteFile(docId: string) {
+  await prisma.document.delete({
+    where:{
+      id:docId
+    }
+  })
+}
+
