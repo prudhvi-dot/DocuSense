@@ -2,7 +2,6 @@ import { headers } from "next/headers";
 import Stripe from "stripe";
 import stripe from "@/lib/stripe";
 import { prisma } from "@/DB/prisma";
-import { toast } from "react-toastify";
 
 export async function POST(request: Request) {
     const headerLit = await headers();
