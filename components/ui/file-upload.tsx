@@ -7,6 +7,8 @@ import { IconUpload } from "@tabler/icons-react";
 import { useDropzone } from "react-dropzone";
 import { handleFileUpload } from "@/actions";
 import { useRouter } from "next/navigation";
+import useSubscription from "@/hooks/useSubscription";
+import { toast } from "react-toastify";
 
 const mainVariant = {
   initial: {
@@ -38,6 +40,7 @@ export const FileUpload = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [progress, setProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  const {hasActiveMembership, isOverFileLimit} = useSubscription();
 
   const router = useRouter();
 
@@ -95,7 +98,13 @@ export const FileUpload = ({
           ref={fileInputRef}
           id="file-upload-handle"
           type="file"
-          onChange={(e) => handleFileChange(Array.from(e.target.files || []))}
+          onChange={(e) => {
+            if(isOverFileLimit) {
+              toast.error("You have reached your file limit. Please upgrade your plan to upload more files.");
+              return;
+            }
+            handleFileChange(Array.from(e.target.files || []))
+          }}
           className="hidden"
         />
         <div className="absolute inset-0 [mask-image:radial-gradient(ellipse_at_center,white,transparent)]">

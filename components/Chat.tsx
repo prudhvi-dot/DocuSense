@@ -7,6 +7,7 @@ import { askQuestion, getChatMessages } from "@/actions";
 import { BotIcon } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
+import { toast } from "react-toastify";
 
 export type Message = {
   id?: string;
@@ -56,6 +57,10 @@ const Chat = ({ id }: { id: string }) => {
 
     startTransition(async () => {
       const { success, message } = await askQuestion(id, question);
+
+      if(!success){
+        toast.error(message);
+      }
 
       setMessages((prev) => {
         const updated = [...prev];

@@ -149,7 +149,20 @@
 }
 
 
+/* Ensure the overall theme is set to dark (black background/white text) */
+:root {
+  --toastify-color-dark: #000000; /* Pure Black Background */
+  --toastify-text-color-dark: #ffffff; /* Pure White Text */
+}
 
+/* Override the specific variables for the "error" toast type */
+:root {
+  /* This changes the color of the Error Icon and the Error Progress Bar */
+  --toastify-color-error: #ffffff; 
+  
+  /* This ensures the close button (X) and spinner (loader) remain white in dark theme */
+  --toastify-icon-color-error: #ffffff; 
+}
 
 
 /* From Uiverse.io by anand_4957 */

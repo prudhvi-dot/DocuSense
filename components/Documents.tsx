@@ -20,7 +20,7 @@ const documents = await prisma.document.findMany({
       {
         documents.map((doc)=>(
           
-          <Document key={doc.id} doc={{id:doc.id, title: doc.title}}/>
+          <Document key={doc.id} doc={{id:doc.id, title: doc.title, fileUrl: doc.fileUrl}}/>
         ))
       }
     </div>

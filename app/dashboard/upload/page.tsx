@@ -1,6 +1,7 @@
 import { FileUpload } from "@/components/ui/file-upload";
 
 const UploadPage = () => {
+
   return (
     <div>
       {/* <FileUploader /> */}

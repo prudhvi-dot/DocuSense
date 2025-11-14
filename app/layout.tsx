@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 // import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
+  import { ToastContainer } from 'react-toastify';
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -16,7 +17,12 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className="min-h-screen h-screen flex flex-col">{children}</body>
+        <body className="min-h-screen h-screen flex flex-col">
+        <ToastContainer 
+        theme="dark"
+        />
+        {children}
+        </body>
       </html>
     </ClerkProvider>
   );

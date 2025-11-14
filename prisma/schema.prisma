@@ -18,6 +18,8 @@ model User {
   name      String
   email     String     @unique
   createdAt DateTime   @default(now())
+  hasProPlan Boolean    @default(false)
+  stripeCustomerId String? @default("")
   documents Document[]
 }
 

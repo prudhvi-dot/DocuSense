@@ -1,8 +1,58 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
+import useSubscription from "@/hooks/useSubscription";
+import getStripe from "@/lib/stripe-js";
+import { useUser } from "@clerk/nextjs";
 import { CheckIcon } from "lucide-react";
-import React from "react";
+import React, { useTransition } from "react";
+import { loadStripe } from '@stripe/stripe-js'; // <--- ADD THIS LINE
+import { createCheckoutSession, createStripePortal } from "@/actions";
+import { get } from "http";
+import { useSearchParams } from "next/navigation";
+import { toast } from "react-toastify";
+
+export type UserDetals = {
+  email: string;
+  name: string;
+};
 
 const page = () => {
+  const { hasActiveMembership, isOverFileLimit } = useSubscription();
+  const [isPending, startTransition] = useTransition();
+  const { user } = useUser();
+
+  
+
+  const handleUpgrade = () => {
+    if (!user) return;
+    const userDetails: UserDetals = {
+      email: user.primaryEmailAddress?.toString()!,
+      name: user.fullName!,
+    };
+
+    startTransition(async () => {
+      const stripe = getStripe();
+      if (!stripe) {
+        console.error("Stripe failed to load");
+        return;
+      }
+
+      if (hasActiveMembership) {
+        // create stripe portal
+        const stripePortalUrl = await createStripePortal();
+        if (stripePortalUrl) {
+          window.location.href = stripePortalUrl;
+        }
+      }
+
+      const sessionUrl = await createCheckoutSession(userDetails);
+
+      if (sessionUrl) {
+        window.location.href = sessionUrl;
+      }
+    });
+  };
   return (
     <div>
       <div className="py-10">
@@ -19,46 +69,76 @@ const page = () => {
         </div>
 
         <div className="max-w-md mx-auto mt-10 grid grid-cols-1 md:grid-cols-2 md:max-w-2xl gap-8 lg:max-w-4xl px-1">
-            <div className="ring-1 ring-gray-200 p-8 h-fit pb-12 rounded-3xl">
-                <h3 className="text-lg font-semibold leading-8 text-black">Starter Plan</h3>
-                <p className="mt-4 text-sm leading-6 text-gray-600">Explore Core Feature at No Cost</p>
-                <p className="mt-6 flex items-baseline gap-x-1">
-                    <span className="text-4xl font-bold tracking-tight text-black">Free</span>
-                </p>
-                <ul role="list" className="mt-8 space-y-3 text-sm leading-6 tezt-gray-600">
-                    <li className="flex gap-x-3">
-                        <CheckIcon className="h-6 w-5 fexl-none text-black"/>2 Documents
-                    </li>
-                    <li className="flex gap-x-3">
-                        <CheckIcon className="h-6 w-5 fexl-none text-black"/>Up to 3 messages per document
-                    </li>
-                    <li className="flex gap-x-3">
-                        <CheckIcon className="h-6 w-5 fexl-none text-black"/>Try out AI Chat Functionality
-                    </li>
-                </ul>
-            </div>
-            <div className="ring-2 ring-black rounded-3xl p-8">
-                <h3 className="text-lg font-semibold leading-8 text-black">Pro plan</h3>
-                <p className="mt-4 text-sm leading-6 text-gray-600">
-                    Maximize Productivity with PRO Features
-                </p>
-                <p className="mt-6 flex items-baseline gap-x-1">
-                    <span className="text-4xl font-bold tracking-tight text-black">$5.99</span>
-                    <span className="text-sm font-semibold leading-6 text-black">/ month</span>
-                </p>
-                <ul role="list" className="mt-8 space-y-3 text-sm leading-6 tezt-gray-600">
-                    <li className="flex gap-x-3">
-                        <CheckIcon className="h-6 w-5 fexl-none text-black"/>Store upto 20 Documents
-                    </li>
-                    <li className="flex gap-x-3">
-                        <CheckIcon className="h-6 w-5 fexl-none text-black"/>Ability to Delete Documents
-                    </li>
-                    <li className="flex gap-x-3">
-                        <CheckIcon className="h-6 w-5 fexl-none text-black"/>Up to 100 messages per Document
-                    </li>
-                </ul>
-                <Button className="w-full mt-4 text-black shadow-sm rounded-md px-3 py-2 font-semibold bg-white border-2 border-black hover:text-white hover:bg-black">Upgrade to Pro</Button>
-            </div>
+          <div className="ring-1 ring-gray-200 p-8 h-fit pb-12 rounded-3xl">
+            <h3 className="text-lg font-semibold leading-8 text-black">
+              Starter Plan
+            </h3>
+            <p className="mt-4 text-sm leading-6 text-gray-600">
+              Explore Core Feature at No Cost
+            </p>
+            <p className="mt-6 flex items-baseline gap-x-1">
+              <span className="text-4xl font-bold tracking-tight text-black">
+                Free
+              </span>
+            </p>
+            <ul
+              role="list"
+              className="mt-8 space-y-3 text-sm leading-6 tezt-gray-600"
+            >
+              <li className="flex gap-x-3">
+                <CheckIcon className="h-6 w-5 fexl-none text-black" />2
+                Documents
+              </li>
+              <li className="flex gap-x-3">
+                <CheckIcon className="h-6 w-5 fexl-none text-black" />
+                Up to 3 messages per document
+              </li>
+              <li className="flex gap-x-3">
+                <CheckIcon className="h-6 w-5 fexl-none text-black" />
+                Try out AI Chat Functionality
+              </li>
+            </ul>
+          </div>
+          <div className="ring-2 ring-black rounded-3xl p-8">
+            <h3 className="text-lg font-semibold leading-8 text-black">
+              Pro plan
+            </h3>
+            <p className="mt-4 text-sm leading-6 text-gray-600">
+              Maximize Productivity with PRO Features
+            </p>
+            <p className="mt-6 flex items-baseline gap-x-1">
+              <span className="text-4xl font-bold tracking-tight text-black">
+                $5.99
+              </span>
+              <span className="text-sm font-semibold leading-6 text-black">
+                / month
+              </span>
+            </p>
+            <ul
+              role="list"
+              className="mt-8 space-y-3 text-sm leading-6 tezt-gray-600"
+            >
+              <li className="flex gap-x-3">
+                <CheckIcon className="h-6 w-5 fexl-none text-black" />
+                Store upto 20 Documents
+              </li>
+              <li className="flex gap-x-3">
+                <CheckIcon className="h-6 w-5 fexl-none text-black" />
+                Ability to Delete Documents
+              </li>
+              <li className="flex gap-x-3">
+                <CheckIcon className="h-6 w-5 fexl-none text-black" />
+                Up to 100 messages per Document
+              </li>
+            </ul>
+            <Button disabled={isPending} onClick={handleUpgrade} className="w-full mt-4 text-black shadow-sm rounded-md px-3 py-2 font-semibold bg-white border-2 border-black hover:text-white hover:bg-black">
+              {isPending
+                ? "Loading..."
+                : hasActiveMembership
+                ? "Manage Plan"
+                : "Upgrade to Pro"}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
