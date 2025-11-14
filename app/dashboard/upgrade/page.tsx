@@ -6,29 +6,23 @@ import getStripe from "@/lib/stripe-js";
 import { useUser } from "@clerk/nextjs";
 import { CheckIcon } from "lucide-react";
 import React, { useTransition } from "react";
-import { loadStripe } from '@stripe/stripe-js'; // <--- ADD THIS LINE
 import { createCheckoutSession, createStripePortal } from "@/actions";
-import { get } from "http";
-import { useSearchParams } from "next/navigation";
-import { toast } from "react-toastify";
 
 export type UserDetals = {
   email: string;
   name: string;
 };
 
-const page = () => {
-  const { hasActiveMembership, isOverFileLimit } = useSubscription();
+const Page = () => {
+  const { hasActiveMembership } = useSubscription();
   const [isPending, startTransition] = useTransition();
   const { user } = useUser();
-
-  
 
   const handleUpgrade = () => {
     if (!user) return;
     const userDetails: UserDetals = {
-      email: user.primaryEmailAddress?.toString()!,
-      name: user.fullName!,
+      email: user.primaryEmailAddress?.emailAddress || "",
+      name: user.fullName || "",
     };
 
     startTransition(async () => {
@@ -131,7 +125,11 @@ const page = () => {
                 Up to 100 messages per Document
               </li>
             </ul>
-            <Button disabled={isPending} onClick={handleUpgrade} className="w-full mt-4 text-black shadow-sm rounded-md px-3 py-2 font-semibold bg-white border-2 border-black hover:text-white hover:bg-black">
+            <Button
+              disabled={isPending}
+              onClick={handleUpgrade}
+              className="w-full mt-4 text-black shadow-sm rounded-md px-3 py-2 font-semibold bg-white border-2 border-black hover:text-white hover:bg-black"
+            >
               {isPending
                 ? "Loading..."
                 : hasActiveMembership
@@ -145,4 +143,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

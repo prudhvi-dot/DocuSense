@@ -40,7 +40,7 @@ export const FileUpload = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [progress, setProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
-  const {hasActiveMembership, isOverFileLimit} = useSubscription();
+  const {isOverFileLimit} = useSubscription();
 
   const router = useRouter();
 

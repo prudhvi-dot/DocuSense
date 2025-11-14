@@ -5,11 +5,10 @@ import { useTransition } from 'react'
 import { Button } from './ui/button';
 import Link from 'next/link';
 import { Loader2Icon, StarIcon } from 'lucide-react';
-import { create } from 'domain';
 import { createStripePortal } from '@/actions';
 
 const UpgradeButton = () => {
-    const {hasActiveMembership, isOverFileLimit} = useSubscription();
+    const {hasActiveMembership} = useSubscription();
     const [isPending, startTransition] = useTransition();
 
     if(!hasActiveMembership) {
