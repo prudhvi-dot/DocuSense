@@ -1,6 +1,6 @@
 "use server";
 
-import { UserDetals } from "./app/dashboard/upgrade/page";
+import { UserDetalis} from "./app/dashboard/upgrade/page";
 import {
   generateEmbeddingsPineconeVectorStore,
   generateLangchainCompletion,
@@ -167,7 +167,7 @@ export async function deleteFile(docId: string) {
   await index.namespace(docId).deleteAll();
 }
 
-export async function createCheckoutSession(UserDetals: UserDetals) {
+export async function createCheckoutSession(UserDetails: UserDetalis) {
   const { userId } = await auth();
 
   if (!userId) {
@@ -184,8 +184,8 @@ export async function createCheckoutSession(UserDetals: UserDetals) {
 
   if (!stripeCustomerId) {
     const customer = await stripe.customers.create({
-      email: UserDetals.email,
-      name: UserDetals.name,
+      email: UserDetails.email,
+      name: UserDetails.name,
       metadata: {
         userId,
       },

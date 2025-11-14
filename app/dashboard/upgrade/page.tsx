@@ -8,7 +8,7 @@ import { CheckIcon } from "lucide-react";
 import React, { useTransition } from "react";
 import { createCheckoutSession, createStripePortal } from "@/actions";
 
-export type UserDetals = {
+export type UserDetalis = {
   email: string;
   name: string;
 };
@@ -20,7 +20,7 @@ const Page = () => {
 
   const handleUpgrade = () => {
     if (!user) return;
-    const userDetails: UserDetals = {
+    const userDetails: UserDetalis = {
       email: user.primaryEmailAddress?.emailAddress || "",
       name: user.fullName || "",
     };
