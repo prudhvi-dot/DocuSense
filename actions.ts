@@ -198,7 +198,7 @@ export async function createCheckoutSession(UserDetails: UserDetalis) {
       },
     });
 
-    const stripeCustomerId = customer.id;
+    stripeCustomerId = customer.id;
   }
 
   const session = await stripe.checkout.sessions.create({
