@@ -3,7 +3,7 @@ import { FileUpload } from "@/components/ui/file-upload";
 const UploadPage = () => {
 
   return (
-    <div>
+    <div className="px-2.5">
       {/* <FileUploader /> */}
       <FileUpload />
     </div>
