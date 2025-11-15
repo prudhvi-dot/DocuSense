@@ -15,7 +15,7 @@ const documents = await prisma.document.findMany({
   }
 })
   return (
-    <div className="flex flex-wrap p-5 bg-gray-100 justify-centerlg:justfy-start rounded-sm gap-5 max-w-7xl mx-auto">
+    <div className="flex flex-wrap p-5 bg-gray-100 max-sm:justify-center md:justfy-start rounded-sm gap-5 max-w-7xl mx-auto">
       <PlaceholderDocument />
       {
         documents.map((doc)=>(

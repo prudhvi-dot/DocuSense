@@ -17,13 +17,13 @@ const Header = () => {
 
       <SignedIn>
         <div className="flex items-center space-x-2">
-          <Button asChild variant="link" className="md:flex">
+          <Button asChild variant="link" className="hidden md:flex">
             <Link href="/dashboard/upgrade">Pricing</Link>
           </Button>
           <Button asChild variant="outline" className="hidden md:flex">
             <Link href="/dashboard">My Documents</Link>
           </Button>
-          <Button asChild variant="outline" className="md:flex">
+          <Button asChild variant="outline" className="hidden md:flex">
             <Link href="/dashboard/upload">
               <FilePlus2 />
             </Link>

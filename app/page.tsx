@@ -53,21 +53,21 @@ export default function Home() {
   return (
     <div className="p-2">
       <div className="bg-white py-24 sm:py-32 rounded-md drop-shadow-xl">
-        <div className="flex flex-col justify-center items-center mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="flex flex-col justify-center items-center mx-auto max-w-7xl md:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl sm:text-center">
-            <h2 className="text-base font-semibold leading-7">
+            <h2 className="text-base text-center font-semibold leading-7">
               Your Interactive Document Companion
             </h2>
-            <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">
+            <p className="mt-2 text-3xl text-center font-bold tracking-tight text-gray-900 sm:text-5xl">
               Transform your PDFs into Interactive Conversations
             </p>
-            <p className="mt-6 text-lg leading-8">
+            <p className="mt-6 text-center text-lg leading-8">
               Introducing <span className="font-bold">DocuSense</span>
               <br />
               <br />
               Upload your document, and our chatbot will answer questions,
               sumarize content, and all your Qs. Ideal for everyone,
-              <span>Chat with PDF</span>{" "}
+              <span> Chat with PDF</span>{" "}
               <span className="font-bold">dynamic conversations</span>,
               enhancing productivity 10x fold effortlessly
             </p>
@@ -80,7 +80,7 @@ export default function Home() {
         <div className="relative overflow-hidden pt-16">
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <Image
-              src="https://i.imgur.com/VciRSTI.jpeg"
+              src="/Hero.png"
               alt="App Screenshot"
               width={2432}
               height={1442}

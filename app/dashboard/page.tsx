@@ -1,11 +1,7 @@
 import { saveUser } from "@/actions";
 import Documents from "@/components/Documents";
 
-
-
 export const dynamic = "force-dynamic";
-
-
 
 const Dashboard = async () => {
   
