@@ -20,8 +20,8 @@ const Document = ({ doc }: { doc: Doc }) => {
       key={doc.id}
       className="flex cursor-pointer flex-col items-center justify-between w-44 h-60 rounded bg-white  transition duration-300 drop-shadow-md text-gray-400"
     >
-      <p onClick={() => router.push(`/dashboard/files/${doc.id}`)} className="hover:text-black">{doc.title}</p>
-      <File onClick={() => router.push(`/dashboard/files/${doc.id}`)} className="h-12 w-12 hover:text-black" />
+      <p onClick={() => router.push(`/dashboard/files/${doc.id}`)} className="hover:text-black text-sm">{doc.title}</p>
+      <File onClick={() => router.push(`/dashboard/files/${doc.id}`)} className="h-12 w-12" />
 
       <div className="flex gap-1 justify-end p-2">
         {hasActiveMembership && 

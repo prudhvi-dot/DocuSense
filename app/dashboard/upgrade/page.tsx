@@ -102,7 +102,7 @@ const Page = () => {
             </p>
             <p className="mt-6 flex items-baseline gap-x-1">
               <span className="text-4xl font-bold tracking-tight text-black">
-                $5.99
+                $1.00
               </span>
               <span className="text-sm font-semibold leading-6 text-black">
                 / month
