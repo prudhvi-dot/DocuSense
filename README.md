@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DocuSense: Chat with Your Documents 🚀
 
-## Getting Started
+DocuSense is a production-ready SaaS platform that transforms static documents into interactive conversations. Using a **Retrieval-Augmented Generation (RAG)** architecture, it allows users to extract insights from PDFs and text files instantly using Google's Gemini 2.5 Flash.
 
-First, run the development server:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ✨ Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Semantic Document Search:** Go beyond keyword matching—understand the context of your files.
+- **Source-Grounded Responses:** AI answers are backed by specific citations from your uploaded documents.
+- **High-Performance Vector Storage:** Lightning-fast retrieval using Pinecone.
+- **Modern Tech Stack:** Built for scale with Next.js and serverless infrastructure.
+- **Secure Payments:** Integrated Stripe subscription management for Pro features.
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🛠 Tech Stack
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Layer | Technology |
+| :--- | :--- |
+| **Frontend** | [Next.js 14](https://nextjs.org/) (App Router), Tailwind CSS |
+| **Database** | [PostgreSQL](https://www.postgresql.org/) (via [Neon DB](https://neon.tech/)) |
+| **ORM** | [Prisma](https://www.prisma.io/) |
+| **AI Engine** | [Gemini 2.5 Flash](https://deepmind.google/technologies/gemini/) |
+| **Orchestration** | [LangChain](https://www.langchain.com/) |
+| **Vector DB** | [Pinecone](https://www.pinecone.io/) |
+| **Embeddings** | [Hugging Face Inference API](https://huggingface.co/inference-api) |
+| **Payments** | [Stripe](https://stripe.com/) |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🧠 System Architecture
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The application follows a robust RAG workflow:
+1. **Document Ingestion:** Files are parsed and split into chunks using LangChain’s recursive character splitters.
+2. **Vectorization:** Text chunks are converted into 768-dimensional (or relevant) vectors via Hugging Face embeddings.
+3. **Upserting:** Vectors and metadata are stored in a Pinecone index.
+4. **Contextual Retrieval:** User queries are embedded and compared against the vector store using Cosine Similarity.
+5. **LLM Synthesis:** The top-k relevant chunks are fed into Gemini 2.5 Flash to generate a natural language response.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+Ensure you have the following API keys:
+- `GEMINI_API_KEY`
+- `PINECONE_API_KEY`
+- `HUGGINGFACE_TOKEN`
+- `STRIPE_SECRET_KEY`
+- `DATABASE_URL` (Neon/PostgreSQL)
+
+### Installation
+
+1. **Clone the Repo:**
+   ```bash
+   git clone [https://github.com/YOUR_USERNAME/docusense.git](https://github.com/YOUR_USERNAME/docusense.git)
+   cd docusense
+
+1. **Install Dependencies:**
+   ```bash
+   npm install
+
+1. **Set Up Environment Variables:**
+   ```bash
+     DATABASE_URL="your_postgresql_url"
+     GEMINI_API_KEY="your_gemini_api_key"
+     PINECONE_API_KEY="your_pinecone_api_key"
+     PINECONE_INDEX_NAME="your_index_name"
+     HUGGINGFACE_TOKEN="your_huggingface_token"
+     STRIPE_SECRET_KEY="your_stripe_secret_key"
+     STRIPE_WEBHOOK_SECRET="your_stripe_webhook_secret"
+     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="your_stripe_public_key"
+
+1. **Initialize Database:**
+   ```bash
+   npx prisma generate
+   npx prisma db push
+   
+1. **Start Development Server:**
+   ```bash
+   npm run dev
