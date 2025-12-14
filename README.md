@@ -66,14 +66,19 @@ Ensure you have the following API keys:
 
 1. **Set Up Environment Variables:**
    ```bash
-     DATABASE_URL="your_postgresql_url"
-     GEMINI_API_KEY="your_gemini_api_key"
-     PINECONE_API_KEY="your_pinecone_api_key"
-     PINECONE_INDEX_NAME="your_index_name"
-     HUGGINGFACE_TOKEN="your_huggingface_token"
-     STRIPE_SECRET_KEY="your_stripe_secret_key"
-     STRIPE_WEBHOOK_SECRET="your_stripe_webhook_secret"
-     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="your_stripe_public_key"
+   DATABASE_URL="your_database_url"
+   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="your_clerk_publishable_key"
+   CLERK_SECRET_KEY="your_clerk_secret_key"
+   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="your_cloudinary_cloud_name"
+   PINECONE_API_KEY_First="your_pinecone_api_key_first"
+   PINECONE_API_KEY="your_pinecone_api_key"
+   PINECONE_ENVIRONMENT="your_pinecone_environment"
+   GOOGLE_API_KEY="your_google_api_key"
+   HUGGINGFACE_API_KEY="your_huggingface_api_key"
+   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="your_stripe_publishable_key"
+   STRIPE_SECRET_KEY="your_stripe_secret_key"
+   NEXT_PUBLIC_BASE_URL="your_base_url"
+   STRIPE_WEBHOOK_SECRET="your_stripe_webhook_secret"
 
 1. **Initialize Database:**
    ```bash
